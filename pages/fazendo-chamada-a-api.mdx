@@ -1,0 +1,56 @@
+# Fazendo uma chamada a api
+
+Utilizando o AppID que você obteve na seção anterior, você pode fazer uma chamada a api
+
+```sh
+curl -X POST https://api.cryptouse.com.br/api/order/create \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <APPID>' \
+-d '{
+  value: 10,
+}
+```
+
+A resposta será algo parecido com isso
+
+**Obs:** No payload o value está como 10, a resposta aparece 1000, pois usamos centavos para medida, 1 real = 100 centavos.
+
+```json
+{
+	"message": "Order was successfully created",
+	"merchant": {
+		"status": "PENDING",
+		"currency": "BRL",
+		"removedAt": null,
+		"_id": "67a53dc17306bc6a36cbc145",
+		"value": 1000,
+		"merchant": "67376f8e175ab9b65d283a29",
+		"merchantTradeNo": "B30XOytptMzOhhxhkm1Cym0vhfxuJxgE",
+		"qrCodeLink": "https://public.bnbstatic.com/static/payment/20250206/3e4e923c-2398-43ee-8c7c-1e5a451728dd.jpg",
+		"universalUrl": "https://app.binance.com/payment/secpay?linkToken=12139d1b2e9e4cfeb5a0bd6ac866200e&_dp=Ym5jOi8vYXBwLmJpbmFuY2UuY29tL3BheW1lbnQvc2VjcGF5P3RlbXBUb2tlbj0wN09PZzRnS2tzaXNIT0Z3M09MMnYwZTduYWNrUWdHcSZjYW5jZWxMaW5rPWh0dHBzOi8vY3J5cHRvdXNlLmNvbS5ici9vcmRlci9mYWlsdXJl",
+		"paymentLinkId": "03f351cd-d451-41ed-9cf5-080453ebff9d",
+		"splits": [],
+		"createdAt": "2025-02-06T22:54:57.335Z",
+		"updatedAt": "2025-02-06T22:54:57.335Z",
+		"__v": 0
+	},
+	"binanceResponse": {
+		"status": "SUCCESS",
+		"code": "000000",
+		"data": {
+			"currency": "USDT",
+			"totalFee": "1.7262213",
+			"fiatCurrency": "BRL",
+			"fiatAmount": "10",
+			"prepayId": "345843001167609856",
+			"terminalType": "WEB",
+			"expireTime": 1738886097088,
+			"qrcodeLink": "https://public.bnbstatic.com/static/payment/20250206/3e4e923c-2398-43ee-8c7c-1e5a451728dd.jpg",
+			"qrContent": "https://app.binance.com/qr/dplkf472a2547bc44632b7df7e05dae0260d",
+			"checkoutUrl": "https://pay.binance.com/en/checkout/12139d1b2e9e4cfeb5a0bd6ac866200e",
+			"deeplink": "bnc://app.binance.com/payment/secpay?tempToken=07OOg4gKksisHOFw3OL2v0e7nackQgGq&cancelLink=https://cryptouse.com.br/order/failure",
+			"universalUrl": "https://app.binance.com/payment/secpay?linkToken=12139d1b2e9e4cfeb5a0bd6ac866200e&_dp=Ym5jOi8vYXBwLmJpbmFuY2UuY29tL3BheW1lbnQvc2VjcGF5P3RlbXBUb2tlbj0wN09PZzRnS2tzaXNIT0Z3M09MMnYwZTduYWNrUWdHcSZjYW5jZWxMaW5rPWh0dHBzOi8vY3J5cHRvdXNlLmNvbS5ici9vcmRlci9mYWlsdXJl"
+		}
+	}
+}
+```

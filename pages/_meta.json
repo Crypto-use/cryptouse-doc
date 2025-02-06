@@ -1,0 +1,13 @@
+{
+  "index": "Introdução",
+  "about": {
+    "title": "Sobre",
+    "type": "page"
+  },
+  "contact": {
+    "title": "Contact ↗",
+    "type": "page",
+    "href": "https://cryptouse.io",
+    "newWindow": true
+  }
+}
