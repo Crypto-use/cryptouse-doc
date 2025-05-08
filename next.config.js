@@ -3,4 +3,8 @@ const withNextra = require('nextra')({
   themeConfig: './theme.config.tsx',
 })
 
-module.exports = withNextra()
+module.exports = withNextra({
+  images: {
+    domains: ['https://postimg.cc','uploaddeimagens.com.br', 'cdn.discordapp.com'],
+  },
+})
