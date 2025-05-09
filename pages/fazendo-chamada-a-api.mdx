@@ -9,6 +9,56 @@ Utilizando o **AppID** que você obteve na seção anterior, você pode fazer um
 
 ---
 
+## 🧪 Exemplo de requisição para chamadas externas
+
+```sh
+curl -X POST https://api.cryptouse.com.br/api/external/crypto-pix/onchain/pay 
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer <APPID>' \
+-d '{
+  "value": 10
+}'
+```
+
+* Processa um pagamento via QR Code PIX, calcula as taxas correspondentes e cria uma ordem de pagamento em criptomoedas.
+
+## 📝 Corpo da Requisição (Request Body)
+
+```sh
+{
+  "qrcode": "string",       // QR Code do pagamento PIX (formato texto / text format)
+  "network": "string"       // Rede blockchain: "bsc" (padrão / default) ou "lightning"
+}
+```
+
+* qrcode (obrigatório / obligatorio / required): Código QR PIX válido como string.
+* network (opcional / optional): "bsc" (padrão / default) ou "lightning". Se omitido, usa "bsc".
+
+## ✅ Resposta de Sucesso (200 OK)
+
+```sh
+{
+  "data": {
+    "pixKey": "chave-pix-do-recebedor",
+    "payCryptoPixId": "cGlkMTIzNDU2...",  // ID base64 da ordem criada
+    "value": "100.00"                     // Valor original do PIX em BRL
+  }
+}
+```
+
+## ⚠️ Erros Comuns (Common Errors)
+
+### Código Mensagem de exemplo
+* 400	QR Code inválido ou ausente
+* 400	Valor não incluído ou inválido	
+* 400	Erro ao calcular valor em cripto	
+* 400	Carteira mestre não encontrada	
+* 500	Falha ao descriptografar chave privada	
+
+
+------
+
+
 ## 🧪 Exemplo de requisição
 
 ```sh

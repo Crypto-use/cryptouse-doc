@@ -5,6 +5,6 @@ const withNextra = require('nextra')({
 
 module.exports = withNextra({
   images: {
-    domains: ['https://postimg.cc','uploaddeimagens.com.br', 'cdn.discordapp.com'],
+    domains: ['uploaddeimagens.com.br', 'cdn.discordapp.com'],
   },
 })
