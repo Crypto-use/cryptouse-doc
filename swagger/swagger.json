@@ -16,6 +16,424 @@
     }
   ],
   "paths": {
+    "/api/v1/onchain/deposit": {
+      "post": {
+        "tags": [
+          "Onchain"
+        ],
+        "summary": "Create a new deposit order",
+        "description": "Create a new blockchain deposit order and generate a wallet address for receiving funds",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "asset",
+                  "network"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "description": "The value in BRL to deposit"
+                  },
+                  "asset": {
+                    "type": "string",
+                    "description": "The cryptocurrency asset type",
+                    "enum": [
+                      "USDT",
+                      "USDC",
+                      "DAI",
+                      "BUSD"
+                    ]
+                  },
+                  "network": {
+                    "type": "string",
+                    "description": "Blockchain network to use",
+                    "enum": [
+                      "eth",
+                      "bsc",
+                      "polygon"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Deposit order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "type": "object",
+                      "properties": {
+                        "address": {
+                          "type": "string",
+                          "description": "Wallet address for the deposit"
+                        },
+                        "paymentLinkId": {
+                          "type": "string",
+                          "description": "Unique identifier for the payment"
+                        },
+                        "network": {
+                          "type": "string",
+                          "description": "Blockchain network used"
+                        },
+                        "asset": {
+                          "type": "string",
+                          "description": "Cryptocurrency asset type"
+                        },
+                        "amount": {
+                          "type": "number",
+                          "description": "The amount in cryptocurrency to be deposited"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    },
+                    "supportedNetworks": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Available networks (only included when network is invalid)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onchain/withdraw/initiate": {
+      "post": {
+        "tags": [
+          "Onchain"
+        ],
+        "summary": "Initiate a withdrawal transaction",
+        "description": "Start a blockchain withdrawal transaction from the user's wallet to a specified address",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "toAddress",
+                  "value"
+                ],
+                "properties": {
+                  "toAddress": {
+                    "type": "string",
+                    "description": "Destination wallet address"
+                  },
+                  "value": {
+                    "type": "number",
+                    "description": "The amount to withdraw"
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "The token to withdraw (defaults to USDT)",
+                    "default": "USDT",
+                    "enum": [
+                      "USDT",
+                      "USDC",
+                      "DAI",
+                      "BUSD"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Withdrawal initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    },
+                    "transactionHash": {
+                      "type": "string",
+                      "description": "The blockchain transaction hash"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "description": "Indicates if the withdrawal was successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Detailed error information"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    },
+                    "success": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Indicates if the operation was successful"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/onchain/order/{id}": {
+      "get": {
+        "tags": [
+          "Onchain"
+        ],
+        "summary": "Get details of an onchain order",
+        "description": "Retrieve information about a specific blockchain order by its payment link ID",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Payment link ID of the order",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number",
+                          "description": "The value in BRL of the order"
+                        },
+                        "cryptoValue": {
+                          "type": "number",
+                          "description": "The value in cryptocurrency"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current status of the payment",
+                          "enum": [
+                            "PENDING",
+                            "COMPLETED",
+                            "REFUNDED",
+                            "PARTIAL_ORDER",
+                            "FAILED"
+                          ]
+                        },
+                        "paymentLinkId": {
+                          "type": "string",
+                          "description": "Unique identifier for the payment"
+                        },
+                        "address": {
+                          "type": "string",
+                          "description": "Cryptocurrency wallet address"
+                        },
+                        "paymentURI": {
+                          "type": "string",
+                          "description": "Payment URI for the transaction"
+                        },
+                        "receivedValue": {
+                          "type": "number",
+                          "description": "Value received (if partial payment)"
+                        },
+                        "originalCryptoValue": {
+                          "type": "number",
+                          "description": "Original value in cryptocurrency"
+                        },
+                        "receivedFrom": {
+                          "type": "string",
+                          "description": "Address that sent the payment"
+                        },
+                        "partialUpdatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Timestamp when partial payment was received"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Creation timestamp"
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "properties": {
+                            "orderId": {
+                              "type": "string"
+                            },
+                            "tokenAddress": {
+                              "type": "string"
+                            },
+                            "network": {
+                              "type": "string"
+                            },
+                            "walletIndex": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "asset": {
+                          "type": "string",
+                          "description": "Cryptocurrency asset type"
+                        },
+                        "network": {
+                          "type": "string",
+                          "description": "Blockchain network used"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Order not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/crypto-pix/onchain/pay": {
       "post": {
         "tags": [
@@ -267,6 +685,112 @@
   },
   "components": {
     "schemas": {
+      "OrderOnChain": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string",
+            "description": "User ID that owns this order"
+          },
+          "value": {
+            "type": "number",
+            "description": "The value in BRL of the order"
+          },
+          "cryptoValue": {
+            "type": "number",
+            "description": "The value in cryptocurrency"
+          },
+          "receivedValue": {
+            "type": "number",
+            "description": "Value received (if partial payment)"
+          },
+          "originalCryptoValue": {
+            "type": "number",
+            "description": "Original value in cryptocurrency"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the payment",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "REFUNDED",
+              "PARTIAL_ORDER",
+              "FAILED"
+            ]
+          },
+          "network": {
+            "type": "string",
+            "description": "Blockchain network used for the transaction",
+            "enum": [
+              "eth",
+              "bsc",
+              "polygon"
+            ]
+          },
+          "asset": {
+            "type": "string",
+            "description": "Cryptocurrency asset type",
+            "enum": [
+              "USDT",
+              "USDC",
+              "DAI",
+              "BUSD"
+            ]
+          },
+          "address": {
+            "type": "string",
+            "description": "Cryptocurrency wallet address"
+          },
+          "paymentLinkId": {
+            "type": "string",
+            "description": "Unique identifier for the payment link"
+          },
+          "paymentURI": {
+            "type": "string",
+            "description": "Payment URI for the transaction"
+          },
+          "receivedFrom": {
+            "type": "string",
+            "description": "Address that sent the payment"
+          },
+          "partialUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when partial payment was received"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "orderId": {
+                "type": "string"
+              },
+              "tokenAddress": {
+                "type": "string"
+              },
+              "network": {
+                "type": "string"
+              },
+              "walletIndex": {
+                "type": "number"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        }
+      },
       "PayCryptoPix": {
         "type": "object",
         "properties": {
@@ -351,6 +875,10 @@
     }
   },
   "tags": [
+    {
+      "name": "Onchain",
+      "description": "Endpoints for blockchain transactions and wallet operations"
+    },
     {
       "name": "Crypto Pix",
       "description": "Endpoints for cryptocurrency to PIX payment operations"
