@@ -1,0 +1,197 @@
+# 💰 Pagamento Onchain Crypto PIX
+
+Este endpoint permite converter criptomoeda e fazer um pagamento PIX usando um QR code fornecido.
+
+## Endpoint
+
+```
+POST /api/v1/crypto-pix/onchain/pay
+```
+
+## Cabeçalhos
+
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|-------------|-----------|
+| Authorization | String | Sim | Bearer + Seu AppID |
+| Content-Type | String | Sim | application/json |
+
+## Corpo da Requisição
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|-------------|-----------|
+| qrcode | String | Sim | O QR code PIX a ser processado |
+| network | String | Sim | Rede blockchain a ser usada (`bsc`, `eth`) |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X POST https://api.cryptouse.com.br/api/v1/crypto-pix/onchain/pay \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer SEU_APP_ID' \
+-d '{
+  "qrcode": "00020101021226880014br.gov.bcb.pix2566qrcodes-pix.mercadopago.com/pix/v2/c3fb0509-3fe3-4c38-8659-2c23565e52e952040000530398654041.005802BR5921TEST MERCHANT NAME6008SAOPAULO62070503***6304FC54",
+  "network": "bsc"
+}'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+const requestBody = {
+  qrcode: "00020101021226880014br.gov.bcb.pix2566qrcodes-pix.mercadopago.com/pix/v2/c3fb0509-3fe3-4c38-8659-2c23565e52e952040000530398654041.005802BR5921TEST MERCHANT NAME6008SAOPAULO62070503***6304FC54",
+  network: "bsc"
+};
+
+fetch('https://api.cryptouse.com.br/api/v1/crypto-pix/onchain/pay', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer SEU_APP_ID'
+  },
+  body: JSON.stringify(requestBody)
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type OnchainPayArgs = {
+  qrcode: string;
+  network: 'bsc' | 'eth';
+};
+
+type OnchainPayResultSuccess = {
+  success: true;
+  data: {
+    pixKey: string;
+    payCryptoPixId: string;
+    value: number;
+  };
+};
+
+type OnchainPayResultError = {
+  success: false;
+  message: string;
+};
+
+type OnchainPayResult = OnchainPayResultSuccess | OnchainPayResultError;
+
+const fazerPagamentoOnchain = async (args: OnchainPayArgs): Promise<OnchainPayResult> => {
+  try {
+    const response = await axios.post(
+      'https://api.cryptouse.com.br/api/v1/crypto-pix/onchain/pay',
+      args,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer SEU_APP_ID'
+        }
+      }
+    );
+    
+    return {
+      success: true,
+      data: response.data.data
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Ocorreu um erro durante o processo de pagamento'
+      };
+    }
+    return {
+      success: false,
+      message: 'Ocorreu um erro desconhecido'
+    };
+  }
+};
+
+// Exemplo de uso
+const executarPagamento = async () => {
+  const resultado = await fazerPagamentoOnchain({
+    qrcode: "00020101021226880014br.gov.bcb.pix2566qrcodes-pix.mercadopago.com/pix/v2/c3fb0509-3fe3-4c38-8659-2c23565e52e952040000530398654041.005802BR5921TEST MERCHANT NAME6008SAOPAULO62070503***6304FC54",
+    network: "bsc"
+  });
+  
+  if (resultado.success) {
+    console.log('Pagamento criado:', resultado.data);
+  } else {
+    console.error('Falha no pagamento:', resultado.message);
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$url = 'https://api.cryptouse.com.br/api/v1/crypto-pix/onchain/pay';
+$data = [
+  'qrcode' => '00020101021226880014br.gov.bcb.pix2566qrcodes-pix.mercadopago.com/pix/v2/c3fb0509-3fe3-4c38-8659-2c23565e52e952040000530398654041.005802BR5921TEST MERCHANT NAME6008SAOPAULO62070503***6304FC54',
+  'network' => 'bsc'
+];
+
+$options = [
+  'http' => [
+    'header'  => "Content-type: application/json\r\nAuthorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'POST',
+    'content' => json_encode($data)
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (200 OK)
+
+```json
+{
+  "data": {
+    "pixKey": "teste@exemplo.com",
+    "payCryptoPixId": "6f8e175ab9b65d283a29",
+    "value": 100.45
+  }
+}
+```
+
+### Resposta de Erro (400 Bad Request)
+
+```json
+{
+  "message": "Formato de QR code inválido"
+}
+```
+
+### Resposta de Erro (500 Internal Server Error)
+
+```json
+{
+  "message": "Ocorreu um erro inesperado ao processar sua solicitação"
+}
+```
+
+## Observações
+
+- O `value` na resposta está em BRL (Real Brasileiro)
+- Certifique-se de que seu AppID tenha as permissões necessárias para realizar esta operação
+- Por razões de segurança, a conexão é criptografada usando TLS/SSL
+- Para transações de teste, use o ambiente sandbox 

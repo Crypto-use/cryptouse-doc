@@ -1,0 +1,359 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "cryptouse-server",
+    "description": "cryptous-server",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "AppID": []
+    }
+  ],
+  "paths": {
+    "/api/v1/crypto-pix/onchain/pay": {
+      "post": {
+        "tags": [
+          "Crypto Pix"
+        ],
+        "summary": "Process a payment from cryptocurrency to PIX",
+        "description": "Convert cryptocurrency and make a PIX payment using the QR code provided",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "qrcode",
+                  "network"
+                ],
+                "properties": {
+                  "qrcode": {
+                    "type": "string",
+                    "description": "The PIX QR code to be processed"
+                  },
+                  "network": {
+                    "type": "string",
+                    "description": "Blockchain network to use (e.g., bsc, eth)",
+                    "enum": [
+                      "bsc",
+                      "eth"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pixKey": {
+                          "type": "string",
+                          "description": "The PIX key of the recipient"
+                        },
+                        "payCryptoPixId": {
+                          "type": "string",
+                          "description": "Unique identifier for the payment"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "The value in BRL to be paid"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/crypto-pix/order/get": {
+      "post": {
+        "tags": [
+          "Crypto Pix"
+        ],
+        "summary": "Get details of a crypto PIX payment order",
+        "description": "Retrieve information about a specific crypto PIX payment by its ID",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The base64 encoded ID of the payment order"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment order details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayCryptoPix",
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "number",
+                      "description": "The value in BRL of the payment"
+                    },
+                    "cryptoValue": {
+                      "type": "number",
+                      "description": "The value in cryptocurrency"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Last update timestamp"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Current status of the payment",
+                      "enum": [
+                        "PENDING",
+                        "COMPLETED",
+                        "REFUNDED",
+                        "PARTIAL_ORDER",
+                        "FAILED"
+                      ]
+                    },
+                    "network": {
+                      "type": "string",
+                      "description": "Blockchain network used for the payment"
+                    },
+                    "address": {
+                      "type": "string",
+                      "description": "Cryptocurrency wallet address"
+                    },
+                    "receivedValue": {
+                      "type": "number",
+                      "description": "Value received (if partial payment)"
+                    },
+                    "originalCryptoValue": {
+                      "type": "number",
+                      "description": "Original value in cryptocurrency"
+                    },
+                    "partialUpdatedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Timestamp when partial payment was received"
+                    },
+                    "partialBrlValue": {
+                      "type": "number",
+                      "description": "Partial value in BRL"
+                    },
+                    "isPartial": {
+                      "type": "boolean",
+                      "description": "Whether the order is partially paid"
+                    },
+                    "remaining": {
+                      "type": "number",
+                      "description": "Remaining value to be paid if partial"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Payment order not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "openapi": {
+      "0": "3",
+      "1": ".",
+      "2": "0",
+      "3": ".",
+      "4": "3"
+    },
+    "info": {
+      "title": "cryptouse-server",
+      "description": "cryptouse-server",
+      "version": "1.0.0"
+    },
+    "servers": {
+      "0": {
+        "description": "Production server"
+      }
+    },
+    "security": {
+      "0": {
+        "AppID": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PayCryptoPix": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string",
+            "description": "Blockchain network used for the payment",
+            "enum": [
+              "bsc",
+              "eth"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "description": "The value in BRL of the payment"
+          },
+          "originalValue": {
+            "type": "number",
+            "description": "The original value without fees"
+          },
+          "cryptoValue": {
+            "type": "number",
+            "description": "The value in cryptocurrency"
+          },
+          "pixQrcode": {
+            "type": "string",
+            "description": "The QR code content for the PIX payment"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the payment",
+            "enum": [
+              "PENDING",
+              "COMPLETED",
+              "REFUNDED",
+              "PARTIAL_ORDER",
+              "FAILED"
+            ]
+          },
+          "pixKeyReceiver": {
+            "type": "string",
+            "description": "PIX key of the receiver"
+          },
+          "paymentReference": {
+            "type": "string",
+            "description": "Payment reference"
+          },
+          "pixKeyType": {
+            "type": "string",
+            "description": "Type of PIX key",
+            "enum": [
+              "STATIC",
+              "DYNAMIC"
+            ]
+          },
+          "address": {
+            "type": "string",
+            "description": "Cryptocurrency wallet address"
+          },
+          "receivedValue": {
+            "type": "number",
+            "description": "Value received (if partial payment)"
+          },
+          "originalCryptoValue": {
+            "type": "number",
+            "description": "Original value in cryptocurrency"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Crypto Pix",
+      "description": "Endpoints for cryptocurrency to PIX payment operations"
+    }
+  ]
+}

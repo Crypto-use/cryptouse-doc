@@ -1,0 +1,244 @@
+# 🔍 Obter Detalhes do Pedido Crypto PIX
+
+Este endpoint permite recuperar informações detalhadas sobre um pagamento Crypto PIX específico pelo seu ID.
+
+## Endpoint
+
+```
+POST /api/v1/crypto-pix/order/get
+```
+
+## Cabeçalhos
+
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|-------------|-----------|
+| Authorization | String | Sim | Bearer + Seu AppID |
+| Content-Type | String | Sim | application/json |
+
+## Corpo da Requisição
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|-------------|-----------|
+| id | String | Sim | O ID do pedido de pagamento codificado em base64 |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X POST https://api.cryptouse.com.br/api/v1/crypto-pix/order/get \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer SEU_APP_ID' \
+-d '{
+  "id": "NjdhNTNkYzE3MzA2YmM2YTM2Y2JjMTQ1"
+}'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+const requestBody = {
+  id: "NjdhNTNkYzE3MzA2YmM2YTM2Y2JjMTQ1"
+};
+
+fetch('https://api.cryptouse.com.br/api/v1/crypto-pix/order/get', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer SEU_APP_ID'
+  },
+  body: JSON.stringify(requestBody)
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Erro:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type OrderGetArgs = {
+  id: string;
+};
+
+type OrderGetResultSuccess = {
+  success: true;
+  data: {
+    _id: string;
+    value: number;
+    cryptoValue: number;
+    updatedAt: string;
+    status: 'PENDING' | 'COMPLETED' | 'REFUNDED' | 'PARTIAL_ORDER' | 'FAILED';
+    network: string;
+    address: string;
+    receivedValue?: number;
+    originalCryptoValue?: number;
+    partialUpdatedAt?: string;
+    partialBrlValue?: number;
+    isPartial?: boolean;
+    remaining?: number;
+    pixQrcode: string;
+    pixKeyReceiver: string;
+    pixKeyType: 'STATIC' | 'DYNAMIC';
+    originalValue: number;
+    paymentReference: string;
+    createdAt: string;
+  };
+};
+
+type OrderGetResultError = {
+  success: false;
+  message: string;
+};
+
+type OrderGetResult = OrderGetResultSuccess | OrderGetResultError;
+
+const obterDetalhesPedido = async (args: OrderGetArgs): Promise<OrderGetResult> => {
+  try {
+    const response = await axios.post(
+      'https://api.cryptouse.com.br/api/v1/crypto-pix/order/get',
+      args,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer SEU_APP_ID'
+        }
+      }
+    );
+    
+    return {
+      success: true,
+      data: response.data
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Ocorreu um erro ao buscar os detalhes do pedido'
+      };
+    }
+    return {
+      success: false,
+      message: 'Ocorreu um erro desconhecido'
+    };
+  }
+};
+
+// Exemplo de uso
+const buscarDetalhesPedido = async () => {
+  const resultado = await obterDetalhesPedido({
+    id: "NjdhNTNkYzE3MzA2YmM2YTM2Y2JjMTQ1"
+  });
+  
+  if (resultado.success) {
+    console.log('Detalhes do pedido:', resultado.data);
+    if (resultado.data.status === 'COMPLETED') {
+      console.log('Pagamento realizado com sucesso!');
+    } else if (resultado.data.status === 'PENDING') {
+      console.log('Pagamento ainda pendente...');
+    }
+  } else {
+    console.error('Falha ao buscar detalhes do pedido:', resultado.message);
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$url = 'https://api.cryptouse.com.br/api/v1/crypto-pix/order/get';
+$data = [
+  'id' => 'NjdhNTNkYzE3MzA2YmM2YTM2Y2JjMTQ1'
+];
+
+$options = [
+  'http' => [
+    'header'  => "Content-type: application/json\r\nAuthorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'POST',
+    'content' => json_encode($data)
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (200 OK)
+
+```json
+{
+  "_id": "67a53dc17306bc6a36cbc145",
+  "network": "bsc",
+  "value": 150.75,
+  "originalValue": 150.75,
+  "cryptoValue": 27.52,
+  "pixQrcode": "00020101021226880014br.gov.bcb.pix2566qrcodes-pix.mercadopago.com/pix/v2/c3fb0509-3fe3-4c38-8659-2c23565e52e952040000530398654041.005802BR5921TEST MERCHANT NAME6008SAOPAULO62070503***6304FC54",
+  "status": "COMPLETED",
+  "pixKeyReceiver": "teste@exemplo.com",
+  "paymentReference": "CRYPTPIX123456",
+  "pixKeyType": "STATIC",
+  "address": "0x1234567890abcdef1234567890abcdef12345678",
+  "updatedAt": "2023-07-25T14:30:45.123Z",
+  "createdAt": "2023-07-25T14:15:22.789Z"
+}
+```
+
+### Exemplo de Resposta de Pagamento Parcial
+
+```json
+{
+  "_id": "67a53dc17306bc6a36cbc146",
+  "network": "eth",
+  "value": 200.00,
+  "originalValue": 200.00,
+  "cryptoValue": 35.65,
+  "pixQrcode": "00020101021226880014br.gov.bcb.pix2566qrcodes-pix.mercadopago.com/pix/v2/c3fb0509-3fe3-4c38-8659-2c23565e52e952040000530398654041.005802BR5921TEST MERCHANT NAME6008SAOPAULO62070503***6304FC54",
+  "status": "PARTIAL_ORDER",
+  "pixKeyReceiver": "teste2@exemplo.com",
+  "paymentReference": "CRYPTPIX654321",
+  "pixKeyType": "STATIC",
+  "address": "0xabcdef1234567890abcdef1234567890abcdef12",
+  "receivedValue": 17.82,
+  "originalCryptoValue": 35.65,
+  "partialUpdatedAt": "2023-07-26T10:20:33.456Z",
+  "partialBrlValue": 100.00,
+  "isPartial": true,
+  "remaining": 17.83,
+  "updatedAt": "2023-07-26T10:20:33.456Z",
+  "createdAt": "2023-07-26T09:45:12.123Z"
+}
+```
+
+### Resposta de Erro (404 Not Found)
+
+```json
+{
+  "message": "Pedido de pagamento não encontrado"
+}
+```
+
+## Observações
+
+- O ID do pedido deve ser codificado em base64
+- O `value` na resposta está em BRL (Real Brasileiro)
+- O `cryptoValue` está na criptomoeda da rede especificada
+- O campo `status` indica o estado atual do pagamento:
+  - `PENDING`: Pagamento ainda não foi processado
+  - `COMPLETED`: Pagamento foi processado com sucesso
+  - `REFUNDED`: Pagamento foi reembolsado
+  - `PARTIAL_ORDER`: Apenas parte do pagamento foi recebida
+  - `FAILED`: Processamento do pagamento falhou
+- Para pagamentos parciais, verifique a flag `isPartial` e o valor `remaining` 

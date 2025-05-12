@@ -1,0 +1,56 @@
+# 💸 API Crypto PIX
+
+A API Crypto PIX permite realizar operações de pagamento de criptomoedas para PIX, possibilitando transações entre redes de criptomoedas e o sistema de pagamento PIX brasileiro.
+
+## Endpoints Disponíveis
+
+Esta API fornece os seguintes endpoints:
+
+1. **[Pagamento Onchain](/crypto-pix-api/crypto-pix-onchain-pay)** - Converte criptomoeda e realiza um pagamento PIX usando um QR code fornecido
+2. **[Obter Detalhes do Pedido](/crypto-pix-api/crypto-pix-order-get)** - Recupera informações sobre um pagamento PIX específico pelo seu ID
+
+## Autenticação
+
+Todos os endpoints da API requerem autenticação usando seu AppID. Você pode obter um AppID na seção [Credenciais](/Credenciais).
+
+Inclua seu AppID no cabeçalho de Autorização de cada requisição:
+
+```
+Authorization: Bearer SEU_APP_ID
+```
+
+## Redes
+
+A API Crypto PIX suporta as seguintes redes blockchain:
+
+| Rede | Chain ID | Descrição |
+|------|----------|-----------|
+| bsc  | 56       | Binance Smart Chain Mainnet |
+| eth  | 1        | Ethereum Mainnet |
+
+## Códigos de Resposta Comuns
+
+| Código de Status | Descrição |
+|------------------|-----------|
+| 200              | Requisição bem-sucedida |
+| 400              | Requisição inválida - verifique seus parâmetros |
+| 401              | Não autorizado - AppID inválido ou ausente |
+| 404              | Recurso não encontrado |
+| 500              | Erro no servidor |
+
+## Limites de Taxa
+
+Cada AppID tem um limite de 100 requisições por minuto. Se você exceder esse limite, receberá uma resposta 429 (Muitas Requisições).
+
+## Exemplo de Fluxo de Trabalho
+
+Um fluxo de trabalho típico usando a API Crypto PIX inclui:
+
+1. Receber um QR code PIX do seu cliente
+2. Usar o endpoint de [Pagamento Onchain](/crypto-pix-api/crypto-pix-onchain-pay) para iniciar uma transação de criptomoeda para PIX
+3. Armazenar o `payCryptoPixId` retornado para referência futura
+4. Usar o endpoint [Obter Detalhes do Pedido](/crypto-pix-api/crypto-pix-order-get) para verificar o status da transação
+
+## Precisa de Ajuda?
+
+Se você encontrar algum problema ou tiver dúvidas sobre a API, por favor, entre em contato com nossa equipe de suporte em [support@cryptouse.com.br](mailto:support@cryptouse.com.br). 
