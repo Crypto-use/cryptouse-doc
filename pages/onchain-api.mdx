@@ -1,0 +1,73 @@
+# 🔗 API Onchain
+
+A API Onchain permite realizar operações diretamente nas redes blockchain, facilitando depósitos, saques e consultas de transações.
+
+## Endpoints Disponíveis
+
+Esta API fornece os seguintes endpoints:
+
+1. **[Depósito](/onchain-deposit)** - Criar uma nova ordem de depósito e gerar um endereço de carteira para receber fundos
+2. **[Iniciar Saque](/onchain-withdraw-initiate)** - Iniciar uma transação de saque para um endereço específico
+3. **[Obter Detalhes da Ordem](/onchain-order-details)** - Recuperar informações sobre uma ordem específica
+
+## Autenticação
+
+Todos os endpoints da API requerem autenticação usando seu AppID. Você pode obter um AppID na seção [Credenciais](/Credenciais).
+
+Inclua seu AppID no cabeçalho de Autorização de cada requisição:
+
+```
+Authorization: Bearer SEU_APP_ID
+```
+
+## Redes Suportadas
+
+A API Onchain suporta as seguintes redes blockchain:
+
+| Rede    | Chain ID | Descrição |
+|---------|----------|-----------|
+| eth     | 1        | Ethereum Mainnet |
+| bsc     | 56       | Binance Smart Chain Mainnet |
+| polygon | 137      | Polygon (Matic) Mainnet |
+
+## Tokens Suportados
+
+A API suporta os seguintes tokens:
+
+| Token | Descrição |
+|-------|-----------|
+| USDT  | Tether USD |
+| USDC  | USD Coin |
+| DAI   | Dai Stablecoin |
+| BUSD  | Binance USD |
+
+## Códigos de Resposta Comuns
+
+| Código de Status | Descrição |
+|------------------|-----------|
+| 200/201          | Requisição bem-sucedida |
+| 400              | Requisição inválida - verifique seus parâmetros |
+| 401              | Não autorizado - AppID inválido ou ausente |
+| 404              | Recurso não encontrado |
+| 500              | Erro no servidor |
+
+## Exemplo de Fluxo de Trabalho
+
+Um fluxo de trabalho típico usando a API Onchain inclui:
+
+1. Criar uma ordem de depósito usando o endpoint [Depósito](/onchain-deposit)
+2. Receber um `paymentLinkId` e um endereço de carteira para o depósito
+3. Verificar o status do depósito periodicamente usando o endpoint [Obter Detalhes da Ordem](/onchain-order-details)
+4. Quando necessário, realizar um saque usando o endpoint [Iniciar Saque](/onchain-withdraw-initiate)
+
+## Precauções de Segurança
+
+- Sempre verifique os endereços de carteira antes de realizar transações
+- Não exponha seu AppID ou chaves privadas
+- Implemente validação adequada para todos os parâmetros de entrada
+- Considere implementar limites de saque e outras medidas de segurança
+- Monitore suas transações regularmente para detectar atividades suspeitas
+
+## Precisa de Ajuda?
+
+Se você encontrar algum problema ou tiver dúvidas sobre a API, por favor, entre em contato com nossa equipe de suporte em [support@cryptouse.com.br](mailto:support@cryptouse.com.br). 

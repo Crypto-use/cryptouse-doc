@@ -14,6 +14,14 @@
       "crypto-pix-order-get": "Detalhes do Pedido"
     }
   },
+  "onchain-api": {
+    "title": "API Onchain",
+    "type": "menu",
+    "items": {
+      "onchain-deposit": "Depósito",
+      "onchain-order-details": "Detalhes da Ordem"
+    }
+  },
   "contact": {
     "title": "Contato ↗",
     "type": "page",

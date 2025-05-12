@@ -1,0 +1,243 @@
+# 🔍 Detalhes de Ordem Onchain
+
+Este endpoint permite recuperar informações sobre uma ordem blockchain específica através do seu ID de link de pagamento.
+
+## Endpoint
+
+```
+GET /api/v1/onchain/order/{id}
+```
+
+## Cabeçalhos
+
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|-------------|-----------|
+| Authorization | String | Sim | Bearer + Seu AppID |
+
+## Parâmetros da URL
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|-------------|-----------|
+| id | String | Sim | ID do link de pagamento da ordem |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X GET https://api.cryptouse.com.br/api/v1/onchain/order/67b54dc27306bc6a36cdc156 \
+-H 'Authorization: Bearer SEU_APP_ID'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+const orderId = "67b54dc27306bc6a36cdc156";
+
+fetch(`https://api.cryptouse.com.br/api/v1/onchain/order/${orderId}`, {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer SEU_APP_ID'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Erro:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type OrderDetailsArgs = {
+  id: string;
+};
+
+type OrderDetailsResultSuccess = {
+  success: true;
+  order: {
+    value: number;
+    cryptoValue: number;
+    status: 'PENDING' | 'COMPLETED' | 'REFUNDED' | 'PARTIAL_ORDER' | 'FAILED';
+    paymentLinkId: string;
+    address: string;
+    paymentURI: string;
+    receivedValue?: number;
+    originalCryptoValue?: number;
+    receivedFrom?: string;
+    partialUpdatedAt?: string;
+    createdAt: string;
+    metadata: {
+      orderId?: string;
+      tokenAddress?: string;
+      network?: string;
+      walletIndex?: number;
+    };
+    asset: string;
+    network: string;
+  };
+};
+
+type OrderDetailsResultError = {
+  success: false;
+  message: string;
+};
+
+type OrderDetailsResult = OrderDetailsResultSuccess | OrderDetailsResultError;
+
+const obterDetalhesOrdemOnchain = async (args: OrderDetailsArgs): Promise<OrderDetailsResult> => {
+  try {
+    const response = await axios.get(
+      `https://api.cryptouse.com.br/api/v1/onchain/order/${args.id}`,
+      {
+        headers: {
+          'Authorization': 'Bearer SEU_APP_ID'
+        }
+      }
+    );
+    
+    return {
+      success: true,
+      order: response.data.order
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Ocorreu um erro ao buscar os detalhes da ordem'
+      };
+    }
+    return {
+      success: false,
+      message: 'Ocorreu um erro desconhecido'
+    };
+  }
+};
+
+// Exemplo de uso
+const buscarDetalhesOrdem = async () => {
+  const resultado = await obterDetalhesOrdemOnchain({
+    id: "67b54dc27306bc6a36cdc156"
+  });
+  
+  if (resultado.success) {
+    console.log('Detalhes da ordem:', resultado.order);
+    console.log('Status atual:', resultado.order.status);
+    
+    if (resultado.order.status === 'COMPLETED') {
+      console.log('Pagamento concluído!');
+    } else if (resultado.order.status === 'PENDING') {
+      console.log('Aguardando pagamento...');
+    }
+  } else {
+    console.error('Falha ao buscar detalhes da ordem:', resultado.message);
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$orderId = '67b54dc27306bc6a36cdc156';
+$url = "https://api.cryptouse.com.br/api/v1/onchain/order/{$orderId}";
+
+$options = [
+  'http' => [
+    'header'  => "Authorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'GET'
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (200 OK)
+
+```json
+{
+  "order": {
+    "value": 200,
+    "cryptoValue": 36.45,
+    "status": "COMPLETED",
+    "paymentLinkId": "67b54dc27306bc6a36cdc156",
+    "address": "0xab3f17f5c7fe8ab32c7ef4f795efef5fc8333678",
+    "paymentURI": "ethereum:0xab3f17f5c7fe8ab32c7ef4f795efef5fc8333678?amount=36.45&token=USDT",
+    "receivedValue": 36.45,
+    "originalCryptoValue": 36.45,
+    "receivedFrom": "0xf5b552f6f85518aec205bb7a8f055a250c640618",
+    "createdAt": "2023-07-25T16:22:33.456Z",
+    "metadata": {
+      "orderId": "ORD12345",
+      "tokenAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "network": "bsc",
+      "walletIndex": 3
+    },
+    "asset": "USDT",
+    "network": "bsc"
+  }
+}
+```
+
+### Exemplo de Resposta de Pagamento Parcial
+
+```json
+{
+  "order": {
+    "value": 200,
+    "cryptoValue": 36.45,
+    "status": "PARTIAL_ORDER",
+    "paymentLinkId": "67b54dc27306bc6a36cdc157",
+    "address": "0xcd3f18f7c8fe7ab77c5ef4f795efef5fc8321579",
+    "paymentURI": "ethereum:0xcd3f18f7c8fe7ab77c5ef4f795efef5fc8321579?amount=36.45&token=USDT",
+    "receivedValue": 18.22,
+    "originalCryptoValue": 36.45,
+    "receivedFrom": "0xf5b552f6f85518aec205bb7a8f055a250c640618",
+    "partialUpdatedAt": "2023-07-25T17:30:45.123Z",
+    "createdAt": "2023-07-25T16:30:22.789Z",
+    "metadata": {
+      "orderId": "ORD12346",
+      "tokenAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "network": "bsc",
+      "walletIndex": 4
+    },
+    "asset": "USDT",
+    "network": "bsc"
+  }
+}
+```
+
+### Resposta de Erro (400 Bad Request)
+
+```json
+{
+  "message": "Ordem não encontrada"
+}
+```
+
+## Observações
+
+- O ID do link de pagamento é gerado quando uma ordem de depósito é criada
+- O campo `value` na resposta é em BRL (Real Brasileiro)
+- O campo `cryptoValue` é na criptomoeda especificada
+- O campo `status` indica o estado atual do pagamento:
+  - `PENDING`: Pagamento ainda não foi processado
+  - `COMPLETED`: Pagamento foi processado com sucesso
+  - `REFUNDED`: Pagamento foi reembolsado
+  - `PARTIAL_ORDER`: Apenas parte do pagamento foi recebida
+  - `FAILED`: Processamento do pagamento falhou
+- Para pagamentos parciais, verifique o campo `receivedValue` para saber quanto foi recebido
+- O campo `receivedFrom` contém o endereço da carteira que enviou o pagamento
+- O campo `metadata` contém informações adicionais específicas da transação 

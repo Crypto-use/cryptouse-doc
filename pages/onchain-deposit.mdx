@@ -1,0 +1,225 @@
+# 💼 Depósito Onchain
+
+Este endpoint permite criar uma nova ordem de depósito blockchain e gerar um endereço de carteira para receber fundos.
+
+## Endpoint
+
+```
+POST /api/v1/onchain/deposit
+```
+
+## Cabeçalhos
+
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|-------------|-----------|
+| Authorization | String | Sim | Bearer + Seu AppID |
+| Content-Type | String | Sim | application/json |
+
+## Corpo da Requisição
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|-------------|-----------|
+| value | Number | Sim | O valor em BRL para depositar |
+| asset | String | Sim | O tipo de ativo de criptomoeda (`USDT`, `USDC`, `DAI`, `BUSD`) |
+| network | String | Sim | Rede blockchain a ser usada (`eth`, `bsc`, `polygon`) |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X POST https://api.cryptouse.com.br/api/v1/onchain/deposit \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer SEU_APP_ID' \
+-d '{
+  "value": 200,
+  "asset": "USDT",
+  "network": "bsc"
+}'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+const requestBody = {
+  value: 200,
+  asset: "USDT",
+  network: "bsc"
+};
+
+fetch('https://api.cryptouse.com.br/api/v1/onchain/deposit', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer SEU_APP_ID'
+  },
+  body: JSON.stringify(requestBody)
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Erro:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type DepositArgs = {
+  value: number;
+  asset: 'USDT' | 'USDC' | 'DAI' | 'BUSD';
+  network: 'eth' | 'bsc' | 'polygon';
+};
+
+type DepositResultSuccess = {
+  success: true;
+  order: {
+    address: string;
+    paymentLinkId: string;
+    network: string;
+    asset: string;
+    amount: number;
+  };
+};
+
+type DepositResultError = {
+  success: false;
+  message: string;
+  supportedNetworks?: string[];
+};
+
+type DepositResult = DepositResultSuccess | DepositResultError;
+
+const criarDepositoOnchain = async (args: DepositArgs): Promise<DepositResult> => {
+  try {
+    const response = await axios.post(
+      'https://api.cryptouse.com.br/api/v1/onchain/deposit',
+      args,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer SEU_APP_ID'
+        }
+      }
+    );
+    
+    return {
+      success: true,
+      order: response.data.order
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Ocorreu um erro durante o processo de depósito',
+        supportedNetworks: error.response?.data?.supportedNetworks
+      };
+    }
+    return {
+      success: false,
+      message: 'Ocorreu um erro desconhecido'
+    };
+  }
+};
+
+// Exemplo de uso
+const executarDeposito = async () => {
+  const resultado = await criarDepositoOnchain({
+    value: 200,
+    asset: "USDT",
+    network: "bsc"
+  });
+  
+  if (resultado.success) {
+    console.log('Depósito criado:', resultado.order);
+    console.log('Endereço de carteira para depósito:', resultado.order.address);
+  } else {
+    console.error('Falha no depósito:', resultado.message);
+    if (resultado.supportedNetworks) {
+      console.error('Redes suportadas:', resultado.supportedNetworks.join(', '));
+    }
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$url = 'https://api.cryptouse.com.br/api/v1/onchain/deposit';
+$data = [
+  'value' => 200,
+  'asset' => 'USDT',
+  'network' => 'bsc'
+];
+
+$options = [
+  'http' => [
+    'header'  => "Content-type: application/json\r\nAuthorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'POST',
+    'content' => json_encode($data)
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (201 Created)
+
+```json
+{
+  "order": {
+    "address": "0xab3f17f5c7fe8ab32c7ef4f795efef5fc8333678",
+    "paymentLinkId": "67b54dc27306bc6a36cdc156",
+    "network": "bsc",
+    "asset": "USDT",
+    "amount": 36.45
+  }
+}
+```
+
+### Resposta de Erro (400 Bad Request) - Rede Inválida
+
+```json
+{
+  "message": "Rede blockchain inválida",
+  "supportedNetworks": ["eth", "bsc", "polygon"]
+}
+```
+
+### Resposta de Erro (401 Unauthorized)
+
+```json
+{
+  "message": "Credenciais inválidas ou ausentes"
+}
+```
+
+### Resposta de Erro (500 Internal Server Error)
+
+```json
+{
+  "message": "Ocorreu um erro inesperado ao processar sua solicitação"
+}
+```
+
+## Observações
+
+- O campo `value` na requisição é especificado em BRL (Real Brasileiro)
+- O campo `amount` na resposta é o valor equivalente na criptomoeda especificada
+- O endereço de carteira gerado é exclusivo para esta transação
+- O `paymentLinkId` pode ser usado posteriormente para verificar o status do depósito
+- Certifique-se de que seu AppID tenha as permissões necessárias para criar depósitos
+- Redes suportadas: Ethereum Mainnet (eth), Binance Smart Chain (bsc), Polygon (polygon)
+- Criptomoedas suportadas: USDT, USDC, DAI e BUSD 
