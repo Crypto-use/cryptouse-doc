@@ -1,27 +1,16 @@
 {
   "index": "Introdução",
-  "about": {
-    "title": "Sobre",
-    "type": "page"
-  },
+  "about": "Sobre",
   "Credenciais": "Credenciais",
   "fazendo-chamada-a-api": "Fazendo chamada a API",
-  "crypto-pix-api": {
-    "title": "API Crypto PIX",
-    "type": "menu",
-    "items": {
-      "crypto-pix-onchain-pay": "Pagamento Onchain",
-      "crypto-pix-order-get": "Detalhes do Pedido"
-    }
-  },
-  "onchain-api": {
-    "title": "API Onchain",
-    "type": "menu",
-    "items": {
-      "onchain-deposit": "Depósito",
-      "onchain-order-details": "Detalhes da Ordem"
-    }
-  },
+  "order-get": "Consultar ordem",
+  "crypto-pix-api": "API Crypto PIX",
+  "crypto-pix-onchain-pay": "Pagamento Onchain Crypto PIX",
+  "crypto-pix-order-get": "Detalhes do Pedido Crypto PIX",
+  "crypto-pix-order-list": "Listar Pedidos Crypto PIX",
+  "onchain-api": "API Onchain",
+  "onchain-deposit": "Depósito Onchain",
+  "onchain-order-details": "Detalhes da Ordem Onchain",
   "contact": {
     "title": "Contato ↗",
     "type": "page",
