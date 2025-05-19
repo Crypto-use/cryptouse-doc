@@ -19,7 +19,7 @@ POST /api/v1/order/create/pix
 
 | Parâmetro      | Tipo    | Obrigatório | Descrição                                 |
 |----------------|---------|-------------|-------------------------------------------|
-| value          | Number  | Sim         | Valor do pagamento em BRL                 |
+| value          | Number  | Sim         | Valor do pagamento em centavos (ex: 100 = 1 real) |
 | name           | String  | Sim         | Nome do cliente                           |
 | orderId        | String  | Sim         | Identificador único do pedido             |
 
@@ -32,7 +32,7 @@ curl -X POST https://api.cryptouse.com.br/api/v1/order/create/pix \
 -H 'Content-Type: application/json' \
 -H 'Authorization: Bearer SEU_APP_ID' \
 -d '{
-  "value": 100.50,
+  "value": 100,
   "name": "João da Silva",
   "orderId": "orderId"
 }'
@@ -42,7 +42,7 @@ curl -X POST https://api.cryptouse.com.br/api/v1/order/create/pix \
 
 ```javascript
 const requestBody = {
-  value: 100.50,
+  value: 100,
   name: "João da Silva",
   orderId: "orderId"
 };
@@ -117,7 +117,7 @@ const criarPedidoPix = async (args: CreatePixOrderArgs): Promise<CreatePixOrderR
 <?php
 $url = 'https://api.cryptouse.com.br/api/v1/order/create/pix';
 $data = [
-  'value' => 100.50,
+  'value' => 100,
   'name' => 'João da Silva',
   'orderId' => 'orderId'
 ];
@@ -151,7 +151,7 @@ if ($result === FALSE) {
   "message": "Pedido criado com sucesso",
   "pixOrder": {
     "paymentLinkId": "abc123xyz",
-    "value": 100.50,
+    "value": 100,
     "status": "PENDING",
     "brcode": "00020101021226880014br.gov.bcb.pix...",
     "link": "https://pagamento.cryptouse.com.br/pix/abc123xyz",
@@ -170,7 +170,7 @@ if ($result === FALSE) {
 
 ## Observações
 
-- O campo `value` é o valor em BRL (Real Brasileiro).
+- O campo `value` deve ser informado em centavos (exemplo: 100 = 1 real).
 - O campo `brcode` é o código PIX para pagamento.
 - O campo `link` é a URL para o cliente realizar o pagamento.
 - O status inicial do pedido é sempre `PENDING`.
