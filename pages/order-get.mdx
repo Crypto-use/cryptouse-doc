@@ -1,0 +1,194 @@
+# 🔍 Consultar Pedido de Pagamento
+
+Este endpoint permite consultar os detalhes de um pedido de pagamento utilizando o identificador do link de pagamento. Ele pode retornar informações de pedidos PIX, onchain (blockchain) e lightning, adaptando os campos de resposta conforme o tipo do pedido.
+
+## Endpoint
+
+```
+GET /api/v1/order/{id}
+```
+
+## Cabeçalhos
+
+| Nome           | Tipo   | Obrigatório | Descrição                        |
+|----------------|--------|-------------|----------------------------------|
+| Authorization  | String | Sim         | Bearer + Seu AppID               |
+
+## Parâmetros da URL
+
+| Parâmetro | Tipo   | Obrigatório | Descrição                                 |
+|-----------|--------|-------------|-------------------------------------------|
+| id        | String | Sim         | ID do link de pagamento ou identificador do pedido |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X GET https://api.cryptouse.com.br/api/v1/order/abc123xyz \
+-H 'Authorization: Bearer SEU_APP_ID'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+const orderId = "abc123xyz";
+
+fetch(`https://api.cryptouse.com.br/api/v1/order/${orderId}`, {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer SEU_APP_ID'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Erro:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type GetOrderArgs = {
+  id: string;
+};
+
+type OrderResponse = {
+  id: string;
+  paymentLinkId: string;
+  value: number;
+  status: string;
+  brcode?: string;
+  qrCodeLink?: string;
+  invoice?: string;
+  link: string;
+  createdAt: string;
+};
+
+type GetOrderResultSuccess = {
+  message: string;
+  order: OrderResponse;
+};
+
+type GetOrderResultError = {
+  message: string;
+};
+
+const consultarPedido = async (args: GetOrderArgs): Promise<GetOrderResultSuccess | GetOrderResultError> => {
+  try {
+    const response = await axios.get(
+      `https://api.cryptouse.com.br/api/v1/order/${args.id}`,
+      {
+        headers: {
+          'Authorization': 'Bearer SEU_APP_ID'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return { message: error.response?.data?.message || 'Erro ao consultar pedido' };
+    }
+    return { message: 'Erro desconhecido' };
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$orderId = 'abc123xyz';
+$url = "https://api.cryptouse.com.br/api/v1/order/{$orderId}";
+
+$options = [
+  'http' => [
+    'header'  => "Authorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'GET'
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (200 OK) - PIX
+
+```json
+{
+  "message": "Pedido encontrado",
+  "order": {
+    "id": "pix_1234567890",
+    "paymentLinkId": "abc123xyz",
+    "value": 100.50,
+    "status": "PENDING",
+    "brcode": "00020101021226880014br.gov.bcb.pix...",
+    "link": "https://pagamento.cryptouse.com.br/pix/abc123xyz",
+    "createdAt": "2023-07-25T16:22:33.456Z"
+  }
+}
+```
+
+### Resposta de Sucesso (200 OK) - Onchain
+
+```json
+{
+  "message": "Pedido encontrado",
+  "order": {
+    "id": "onchain_1234567890",
+    "paymentLinkId": "def456uvw",
+    "value": 250.00,
+    "status": "COMPLETED",
+    "link": "https://cryptouse.com.br/order/onchain/def456uvw",
+    "createdAt": "2023-07-25T17:00:00.000Z"
+  }
+}
+```
+
+### Resposta de Sucesso (200 OK) - Lightning
+
+```json
+{
+  "message": "Pedido encontrado",
+  "order": {
+    "id": "lightning_1234567890",
+    "paymentLinkId": "ghi789rst",
+    "value": 50.00,
+    "status": "COMPLETED",
+    "invoice": "lnbc1...",
+    "link": "https://cryptouse.com.br/order/lightning/ghi789rst",
+    "createdAt": "2023-07-25T18:00:00.000Z"
+  }
+}
+```
+
+### Resposta de Erro (404 Not Found)
+
+```json
+{
+  "success": false,
+  "error": "Pedido não encontrado"
+}
+```
+
+## Observações
+
+- Este endpoint pode retornar pedidos dos tipos PIX, onchain (blockchain) e lightning.
+- Os campos retornados variam conforme o tipo do pedido:
+  - Para PIX: `brcode` e `link`.
+  - Para onchain: apenas `link`.
+  - Para lightning: `invoice` e `link`.
+- O campo `value` é retornado em BRL (Real Brasileiro), não em centavos.
+- O campo `status` pode ser: `PENDING`, `COMPLETED`, `CANCELLED`, `FAILED`, `REFUND`.
+- O campo `paymentLinkId` pode ser usado para consultar o status do pedido posteriormente. 
