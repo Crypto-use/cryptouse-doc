@@ -434,6 +434,516 @@
         }
       }
     },
+    "/api/v1/order/create": {
+      "post": {
+        "tags": [
+          "Application Order"
+        ],
+        "summary": "Create a new Binance payment order",
+        "description": "Generate a new Binance payment QR code for the specified amount",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "description": "The payment amount in BRL"
+                  },
+                  "payerId": {
+                    "type": "string",
+                    "description": "Optional payer ID reference"
+                  },
+                  "merchant": {
+                    "type": "object",
+                    "properties": {
+                      "subMerchantId": {
+                        "type": "string",
+                        "description": "Merchant identifier for the payment"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    },
+                    "order": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Order ID"
+                        },
+                        "paymentLinkId": {
+                          "type": "string",
+                          "description": "Unique payment link identifier"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "Payment amount in BRL"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Order status",
+                          "enum": [
+                            "PENDING",
+                            "COMPLETED",
+                            "CANCELLED",
+                            "FAILED",
+                            "REFUND"
+                          ]
+                        },
+                        "qrCodeLink": {
+                          "type": "string",
+                          "description": "URL for the QR code image"
+                        },
+                        "link": {
+                          "type": "string",
+                          "description": "Payment URL for the user"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Order creation timestamp"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/order/create/lightning": {
+      "post": {
+        "tags": [
+          "Application Order"
+        ],
+        "summary": "Create a new Lightning Network payment order",
+        "description": "Generate a new Lightning payment invoice for the specified amount",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "value"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "description": "The payment amount in BRL (will be converted to satoshis)"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Optional customer email"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Optional customer name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lightning invoice created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    },
+                    "order": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Order ID"
+                        },
+                        "paymentLinkId": {
+                          "type": "string",
+                          "description": "Unique payment link identifier"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "Payment amount in BRL"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Order status",
+                          "enum": [
+                            "PENDING",
+                            "COMPLETED",
+                            "CANCELLED",
+                            "FAILED",
+                            "REFUND"
+                          ]
+                        },
+                        "invoice": {
+                          "type": "string",
+                          "description": "Lightning Network invoice string"
+                        },
+                        "link": {
+                          "type": "string",
+                          "description": "Payment URL for the user"
+                        },
+                        "satoshis": {
+                          "type": "string",
+                          "description": "Payment amount in satoshis"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Order creation timestamp"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/order/create/pix": {
+      "post": {
+        "tags": [
+          "Application Order"
+        ],
+        "summary": "Create a new PIX payment order",
+        "description": "Generate a new PIX payment QR code for the specified amount",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "name"
+                ],
+                "properties": {
+                  "orderRequest": {
+                    "type": "string",
+                    "description": "Order request reference"
+                  },
+                  "merchant": {
+                    "type": "string",
+                    "description": "Merchant reference"
+                  },
+                  "value": {
+                    "type": "number",
+                    "description": "The payment amount in BRL"
+                  },
+                  "orderId": {
+                    "type": "string",
+                    "description": "Optional custom order ID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Customer name"
+                  },
+                  "cnpj": {
+                    "type": "string",
+                    "description": "Company CNPJ number"
+                  },
+                  "cpf": {
+                    "type": "string",
+                    "description": "Optional personal CPF number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    },
+                    "pixOrder": {
+                      "type": "object",
+                      "properties": {
+                        "paymentLinkId": {
+                          "type": "string",
+                          "description": "Unique payment link identifier"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "Payment amount in BRL"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Order status",
+                          "enum": [
+                            "PENDING",
+                            "COMPLETED",
+                            "CANCELLED",
+                            "FAILED",
+                            "REFUND"
+                          ]
+                        },
+                        "brcode": {
+                          "type": "string",
+                          "description": "PIX BR code for payment"
+                        },
+                        "link": {
+                          "type": "string",
+                          "description": "Payment URL for the user"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Order creation timestamp"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/order/{id}": {
+      "get": {
+        "tags": [
+          "Application Order"
+        ],
+        "summary": "Get order details by ID",
+        "description": "Retrieve payment order details with the payment link identifier",
+        "security": [
+          {
+            "appId": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Payment link ID or payment identifier",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Success message"
+                    },
+                    "order": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Order ID"
+                        },
+                        "paymentLinkId": {
+                          "type": "string",
+                          "description": "Unique payment link identifier"
+                        },
+                        "value": {
+                          "type": "number",
+                          "description": "Payment amount in BRL"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Order status",
+                          "enum": [
+                            "PENDING",
+                            "COMPLETED",
+                            "CANCELLED",
+                            "FAILED",
+                            "REFUND"
+                          ]
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Order creation timestamp"
+                        },
+                        "brcode": {
+                          "type": "string",
+                          "description": "PIX BR code (only for PIX orders)"
+                        },
+                        "qrCodeLink": {
+                          "type": "string",
+                          "description": "QR code URL (only for Binance orders)"
+                        },
+                        "invoice": {
+                          "type": "string",
+                          "description": "Lightning invoice (only for Lightning orders)"
+                        },
+                        "link": {
+                          "type": "string",
+                          "description": "Payment URL for the user"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/crypto-pix/onchain/pay": {
       "post": {
         "tags": [

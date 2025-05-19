@@ -1,0 +1,223 @@
+# 📋 Listar Pedidos Crypto PIX
+
+Este endpoint permite listar todos os pedidos de pagamento PIX de criptomoeda com filtros opcionais.
+
+## Endpoint
+
+```
+GET /api/v1/crypto-pix/order/list
+```
+
+## Cabeçalhos
+
+| Nome | Tipo | Obrigatório | Descrição |
+|------|------|-------------|-----------|
+| Authorization | String | Sim | Bearer + Seu AppID |
+
+## Parâmetros de Consulta
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|-----------|------|-------------|-----------|
+| status | String | Não | Filtrar pedidos por status (`PENDING`, `COMPLETED`, `REFUNDED`, `PARTIAL_ORDER`, `FAILED`) |
+| page | Integer | Não | Número da página para paginação (padrão: 1) |
+| limit | Integer | Não | Número de itens por página (padrão: 10) |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X GET 'https://api.cryptouse.com.br/api/v1/crypto-pix/order/list?status=PENDING&page=1&limit=10' \
+-H 'Authorization: Bearer SEU_APP_ID'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+fetch('https://api.cryptouse.com.br/api/v1/crypto-pix/order/list?status=PENDING&page=1&limit=10', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer SEU_APP_ID'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type ListOrdersArgs = {
+  status?: 'PENDING' | 'COMPLETED' | 'REFUNDED' | 'PARTIAL_ORDER' | 'FAILED';
+  page?: number;
+  limit?: number;
+};
+
+type PayCryptoPix = {
+  _id: string;
+  network: string;
+  value: number;
+  originalValue: number;
+  cryptoValue: number;
+  pixQrcode: string;
+  status: string;
+  pixKeyReceiver: string;
+  paymentReference: string;
+  pixKeyType: string;
+  address: string;
+  receivedValue?: number;
+  originalCryptoValue: number;
+  updatedAt: string;
+  createdAt: string;
+};
+
+type Pagination = {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  itemsPerPage: number;
+};
+
+type ListOrdersResultSuccess = {
+  success: true;
+  orders: PayCryptoPix[];
+  pagination: Pagination;
+};
+
+type ListOrdersResultError = {
+  success: false;
+  message: string;
+};
+
+type ListOrdersResult = ListOrdersResultSuccess | ListOrdersResultError;
+
+const listarPedidosCryptoPix = async (args: ListOrdersArgs = {}): Promise<ListOrdersResult> => {
+  try {
+    const params = new URLSearchParams();
+    if (args.status) params.append('status', args.status);
+    if (args.page) params.append('page', args.page.toString());
+    if (args.limit) params.append('limit', args.limit.toString());
+    
+    const url = `https://api.cryptouse.com.br/api/v1/crypto-pix/order/list?${params.toString()}`;
+    
+    const response = await axios.get(url, {
+      headers: {
+        'Authorization': 'Bearer SEU_APP_ID'
+      }
+    });
+    
+    return {
+      success: true,
+      orders: response.data.orders,
+      pagination: response.data.pagination
+    };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Ocorreu um erro ao listar os pedidos'
+      };
+    }
+    return {
+      success: false,
+      message: 'Ocorreu um erro desconhecido'
+    };
+  }
+};
+
+// Exemplo de uso
+const buscarPedidos = async () => {
+  const resultado = await listarPedidosCryptoPix({
+    status: 'PENDING',
+    page: 1,
+    limit: 10
+  });
+  
+  if (resultado.success) {
+    console.log('Pedidos encontrados:', resultado.orders.length);
+    console.log('Informações de paginação:', resultado.pagination);
+    console.log('Lista de pedidos:', resultado.orders);
+  } else {
+    console.error('Falha ao listar pedidos:', resultado.message);
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$url = 'https://api.cryptouse.com.br/api/v1/crypto-pix/order/list?status=PENDING&page=1&limit=10';
+
+$options = [
+  'http' => [
+    'header'  => "Authorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'GET'
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (200 OK)
+
+```json
+{
+  "success": true,
+  "orders": [
+    {
+      "_id": "6f8e175ab9b65d283a29",
+      "network": "bsc",
+      "value": 100.45,
+      "originalValue": 102.5,
+      "cryptoValue": 25.12,
+      "pixQrcode": "00020101021226880014br.gov.bcb.pix...",
+      "status": "PENDING",
+      "pixKeyReceiver": "teste@exemplo.com",
+      "paymentReference": "REF123456",
+      "pixKeyType": "STATIC",
+      "address": "0x123abc...",
+      "originalCryptoValue": 25.12,
+      "updatedAt": "2023-01-15T14:30:45.123Z",
+      "createdAt": "2023-01-15T14:25:12.456Z"
+    },
+    // Mais pedidos...
+  ],
+  "pagination": {
+    "totalItems": 45,
+    "totalPages": 5,
+    "currentPage": 1,
+    "itemsPerPage": 10
+  }
+}
+```
+
+### Resposta de Erro (401 Unauthorized)
+
+```json
+{
+  "success": false,
+  "message": "AppID inválido ou não autorizado"
+}
+```
+
+## Observações
+
+- A resposta é paginada para melhor desempenho
+- Os pedidos são ordenados pelo campo `createdAt` em ordem decrescente (mais recentes primeiro)
+- Se nenhum filtro de status for fornecido, todos os pedidos serão retornados
+- O limite máximo de itens por página é 100 
