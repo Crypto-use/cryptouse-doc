@@ -10,6 +10,7 @@
   "crypto-pix-order-list": "Listar Pedidos Crypto PIX",
   "onchain-api": "API Onchain",
   "onchain-deposit": "Depósito Onchain",
+  "order-create-pix": "Criar pedido PIX",
   "onchain-order-details": "Detalhes da Ordem Onchain",
   "contact": {
     "title": "Contato ↗",
