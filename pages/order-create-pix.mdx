@@ -1,0 +1,185 @@
+# 💸 Criar Pedido PIX
+
+Este endpoint permite criar um novo pedido de pagamento PIX e obter um QR code para o valor especificado.
+
+## Endpoint
+
+```
+POST /api/v1/order/create/pix
+```
+
+## Cabeçalhos
+
+| Nome           | Tipo   | Obrigatório | Descrição                        |
+|----------------|--------|-------------|----------------------------------|
+| Authorization  | String | Sim         | Bearer + Seu AppID               |
+| Content-Type   | String | Sim         | application/json                 |
+
+## Corpo da Requisição
+
+| Parâmetro      | Tipo    | Obrigatório | Descrição                                 |
+|----------------|---------|-------------|-------------------------------------------|
+| value          | Number  | Sim         | Valor do pagamento em centavos (ex: 100 = 1 real) |
+| name           | String  | Sim         | Nome do cliente                           |
+| orderId        | String  | Não         | Identificador único do pedido (opcional)  |
+| orderRequest   | String  | Não         | Referência do pedido (opcional)           |
+| merchant       | String  | Não         | Referência do comerciante (opcional)      |
+| cnpj           | String  | Não         | CNPJ da empresa (opcional)                |
+| cpf            | String  | Não         | CPF do cliente (opcional)                 |
+
+## Exemplo de Requisição
+
+### cURL
+
+```bash
+curl -X POST https://api.cryptouse.com.br/api/v1/order/create/pix \
+-H 'Content-Type: application/json' \
+-H 'Authorization: Bearer SEU_APP_ID' \
+-d '{
+  "value": 100,
+  "name": "João da Silva",
+  "orderId": "orderId"
+}'
+```
+
+### JavaScript (Fetch)
+
+```javascript
+const requestBody = {
+  value: 100,
+  name: "João da Silva",
+  orderId: "orderId"
+};
+
+fetch('https://api.cryptouse.com.br/api/v1/order/create/pix', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer SEU_APP_ID'
+  },
+  body: JSON.stringify(requestBody)
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Erro:', error));
+```
+
+### TypeScript (Axios)
+
+```typescript
+import axios from 'axios';
+
+type CreatePixOrderArgs = {
+  value: number;
+  name: string;
+  orderId?: string;
+  orderRequest?: string;
+  merchant?: string;
+  cnpj?: string;
+  cpf?: string;
+};
+
+type PixOrder = {
+  paymentLinkId: string;
+  value: number;
+  status: string;
+  brcode: string;
+  link: string;
+  createdAt: string;
+};
+
+type CreatePixOrderResultSuccess = {
+  message: string;
+  pixOrder: PixOrder;
+};
+
+type CreatePixOrderResultError = {
+  message: string;
+};
+
+const criarPedidoPix = async (args: CreatePixOrderArgs): Promise<CreatePixOrderResultSuccess | CreatePixOrderResultError> => {
+  try {
+    const response = await axios.post(
+      'https://api.cryptouse.com.br/api/v1/order/create/pix',
+      args,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer SEU_APP_ID'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return { message: error.response?.data?.message || 'Erro ao criar pedido PIX' };
+    }
+    return { message: 'Erro desconhecido' };
+  }
+};
+```
+
+### PHP
+
+```php
+<?php
+$url = 'https://api.cryptouse.com.br/api/v1/order/create/pix';
+$data = [
+  'value' => 100,
+  'name' => 'João da Silva',
+  'orderId' => 'orderId'
+];
+
+$options = [
+  'http' => [
+    'header'  => "Content-type: application/json\r\nAuthorization: Bearer SEU_APP_ID\r\n",
+    'method'  => 'POST',
+    'content' => json_encode($data)
+  ]
+];
+
+$context = stream_context_create($options);
+$result = file_get_contents($url, false, $context);
+
+if ($result === FALSE) {
+  // Tratar erro
+} else {
+  $response = json_decode($result, true);
+  print_r($response);
+}
+?>
+```
+
+## Exemplos de Resposta
+
+### Resposta de Sucesso (200 OK)
+
+```json
+{
+  "message": "Pedido criado com sucesso",
+  "pixOrder": {
+    "paymentLinkId": "abc123xyz",
+    "value": 100,
+    "status": "PENDING",
+    "brcode": "00020101021226880014br.gov.bcb.pix...",
+    "link": "https://pagamento.cryptouse.com.br/pix/abc123xyz",
+    "createdAt": "2023-07-25T16:22:33.456Z"
+  }
+}
+```
+
+### Resposta de Erro (400 Bad Request)
+
+```json
+{
+  "message": "Parâmetros obrigatórios ausentes"
+}
+```
+
+## Observações
+
+- O campo `value` deve ser informado em centavos (exemplo: 100 = 1 real).
+- O campo `brcode` é o código PIX para pagamento.
+- O campo `link` é a URL para o cliente realizar o pagamento.
+- O status inicial do pedido é sempre `PENDING`.
+- O campo `paymentLinkId` pode ser usado para consultar o status do pedido posteriormente. 
